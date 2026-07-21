@@ -211,12 +211,33 @@ function showOverlay(title,text){$('ovTitle').textContent=title;$('ovText').text
 function hideOverlay(){$('overlay').style.display='none';$('loadingBadge').style.display='none';$('ovButtons').style.display='flex';$('controls').classList.remove('hidden')}
 function showMainMenu(){gameState='menu';paused=true;clear();$('controls').classList.add('hidden');if(scene&&!scene.scene.isPaused())scene.scene.pause();showOverlay('BOMBER V3','Уничтожь всех врагов с помощью бомб. Касание соперника безопасно — опасно только пламя.');setButtons('ИГРАТЬ',()=>startLevel(1),'НАСТРОЙКИ',()=>toast('Настройки звука будут в следующем обновлении'))}
 function showLoading(nextLevel){gameState='loading';paused=true;$('controls').classList.add('hidden');$('ovTitle').textContent='УРОВЕНЬ '+nextLevel;$('ovText').textContent='Приготовься!';$('loadingBadge').style.display='block';$('ovButtons').style.display='none';$('overlay').style.display='flex'}
-function startLevel(nextLevel){if(!scene){toast('Игра загружается');return}level=nextLevel;showLoading(level);scene.time.delayedCall(700,()=>{if(scene.scene.isPaused())scene.scene.resume();buildLevel();paused=false;gameState='playing';hideOverlay();toast('Уровень '+level)})}
-function restartLevel(){showLoading(level);if(scene.scene.isPaused())scene.scene.resume();scene.time.removeAllEvents();scene.tweens.killAll();buildLevel();paused=false;gameState='playing';hideOverlay();}
-function nextLevel(){level++;lives=Math.min(3,lives+1);showLoading(level);scene.time.delayedCall(700,()=>{if(scene.scene.isPaused())scene.scene.resume();buildLevel();paused=false;gameState='playing';hideOverlay();toast('Уровень '+level)})}
+let levelTransitionTimer=null;
+function loadLevel(nextLevel,delay=700){
+ if(!scene){toast('Игра загружается');return}
+ window.clearTimeout(levelTransitionTimer);
+ level=nextLevel;
+ showLoading(level);
+ // Важно: таймер Phaser не работает, пока сцена стоит на паузе.
+ // Поэтому экран загрузки запускается через обычный таймер браузера.
+ levelTransitionTimer=window.setTimeout(()=>{
+  levelTransitionTimer=null;
+  clear();
+  scene.time.removeAllEvents();
+  scene.tweens.killAll();
+  buildLevel();
+  paused=false;
+  gameState='playing';
+  if(scene.scene.isPaused())scene.scene.resume();
+  hideOverlay();
+  toast('Уровень '+level);
+ },delay);
+}
+function startLevel(nextLevel){loadLevel(nextLevel)}
+function restartLevel(){loadLevel(level,450)}
+function nextLevel(){lives=Math.min(3,lives+1);loadLevel(level+1)}
 function showEndScreen(victory){if(victory){showOverlay('ПОБЕДА!','Арена очищена. Счёт: '+score);setButtons('СЛЕДУЮЩИЙ УРОВЕНЬ',nextLevel,'ГЛАВНОЕ МЕНЮ',showMainMenu)}else{showOverlay('ПОРАЖЕНИЕ','Все жизни потеряны. Счёт: '+score);setButtons('ПОВТОРИТЬ',restartLevel,'ГЛАВНОЕ МЕНЮ',showMainMenu)}}
 function showPauseScreen(){gameState='paused';$('controls').classList.add('hidden');showOverlay('ПАУЗА','Игра остановлена.');setButtons('ПРОДОЛЖИТЬ',()=>{gameState='playing';paused=false;scene.scene.resume();hideOverlay()},'ГЛАВНОЕ МЕНЮ',showMainMenu)}
 window.__BOMBER_TEST__={state:()=>({score,lives,level,gameState,player:player?{x:player.gridX,y:player.gridY}:null,enemies:enemies.map(e=>({x:e.gridX,y:e.gridY,type:e.type,bombs:e.bombsPlaced})),crates:crates.length,bombs:bombs.filter(b=>!b.dead).length,flames:flames.length,paused}),bomb:()=>placeBomb(player),move:d=>moveActor(player,d),start:()=>startLevel(1)};
 showMainMenu();
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3011').catch(console.warn);
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3111').catch(console.warn);
 })();
