@@ -1,21 +1,14 @@
 {
-  "name": "Bomber V3.2",
-  "short_name": "Bomber V3.2",
+  "name": "Bomber Arena V4",
+  "short_name": "Bomber Arena",
+  "description": "Офлайн-игра Bomber Arena с уровнями, арсеналом и умными врагами.",
   "start_url": "./",
   "display": "standalone",
   "orientation": "landscape",
-  "background_color": "#050b12",
-  "theme_color": "#091523",
+  "background_color": "#03070d",
+  "theme_color": "#07111f",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
   ]
 }
