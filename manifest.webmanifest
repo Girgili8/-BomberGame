@@ -1,6 +1,6 @@
 {
-  "name": "Bomber V3",
-  "short_name": "Bomber V3",
+  "name": "Bomber V3.2",
+  "short_name": "Bomber V3.2",
   "start_url": "./",
   "display": "standalone",
   "orientation": "landscape",
