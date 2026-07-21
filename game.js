@@ -173,6 +173,37 @@ const joy=$('joystick'),stick=$('stick');let joyActive=false,pid=null;function c
 function joyUpdate(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=42,len=Math.hypot(dx,dy);if(len>max){dx=dx/len*max;dy=dy/len*max}stick.style.transform=`translate(${dx}px,${dy}px)`;clear();if(len<12)return;const d=Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'right'):(dy<0?'up':'down');moving[d]=true;if(player&&!player.busy)moveActor(player,d)}
 joy.addEventListener('pointerdown',e=>{e.preventDefault();joyActive=true;pid=e.pointerId;joy.setPointerCapture?.(pid);joyUpdate(e)},{passive:false});joy.addEventListener('pointermove',e=>{if(joyActive&&e.pointerId===pid){e.preventDefault();joyUpdate(e)}},{passive:false});function joyEnd(e){if(e.pointerId!==pid)return;joyActive=false;pid=null;clear();stick.style.transform='translate(0,0)';if(player)player.stop()}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
 $('bomb').addEventListener('pointerdown',e=>{e.preventDefault();if(gameState==='playing')placeBomb(player)},{passive:false});
+
+// Управление с клавиатуры: WASD / стрелки, пробел — бомба.
+// Используем event.code, поэтому раскладка клавиатуры не имеет значения.
+const keyboardDirections={
+ KeyW:'up',ArrowUp:'up',
+ KeyS:'down',ArrowDown:'down',
+ KeyA:'left',ArrowLeft:'left',
+ KeyD:'right',ArrowRight:'right'
+};
+window.addEventListener('keydown',e=>{
+ const dir=keyboardDirections[e.code];
+ if(dir){
+  e.preventDefault();
+  if(gameState!=='playing')return;
+  moving[dir]=true;
+  if(player&&!player.busy)moveActor(player,dir);
+  return;
+ }
+ if(e.code==='Space'){
+  e.preventDefault();
+  if(gameState==='playing'&&!e.repeat)placeBomb(player);
+ }
+},{passive:false});
+window.addEventListener('keyup',e=>{
+ const dir=keyboardDirections[e.code];
+ if(!dir)return;
+ e.preventDefault();
+ moving[dir]=false;
+ if(player&&!Object.values(moving).some(Boolean))player.stop();
+},{passive:false});
+window.addEventListener('blur',()=>clear());
 $('pause').onclick=()=>{if(!scene||gameState!=='playing')return;paused=!paused;if(paused){scene.scene.pause();showPauseScreen()}else{scene.scene.resume();hideOverlay();toast('Продолжение')}};
 const primary=$('primaryBtn'),secondary=$('secondaryBtn');
 function setButtons(primaryText,primaryAction,secondaryText=null,secondaryAction=null){primary.textContent=primaryText;primary.onclick=primaryAction;secondary.style.display=secondaryText?'block':'none';if(secondaryText){secondary.textContent=secondaryText;secondary.onclick=secondaryAction}}
