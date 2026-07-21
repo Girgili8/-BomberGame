@@ -1,7 +1,7 @@
 {
-  "name": "Bomber Arena V4",
+  "name": "Bomber Arena V5",
   "short_name": "Bomber Arena",
-  "description": "Офлайн-игра Bomber Arena с уровнями, арсеналом и умными врагами.",
+  "description": "Офлайн-игра Bomber Arena со скинами, погодой, уровнями и умными врагами.",
   "start_url": "./",
   "display": "standalone",
   "orientation": "landscape",
